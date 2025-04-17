@@ -6,7 +6,7 @@ This repository is dedicated to NLP tasks research.
 
 |ID|Name|Task|Source|
 |:-|:-|:-|:-|
-|1||||
+|1|Tatoeba|Translation|[Tatoeba Tab-delimited Bilingual Sentence Pairs](https://www.manythings.org/anki/)|
 
 # 2. Implemented Models
 
