@@ -1,6 +1,6 @@
 # nlp_practice
 
-This repository is dedicated to NLP tasks research.
+This repository is dedicated to NLP tasks research and practice.
 
 # 1. Used Datasets 
 
