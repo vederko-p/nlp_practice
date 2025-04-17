@@ -2,7 +2,7 @@
 
 This repository is dedicated to NLP tasks research.
 
-# 1. Datasets used
+# 1. Used Datasets 
 
 |ID|Name|Task|Source|
 |:-|:-|:-|:-|
