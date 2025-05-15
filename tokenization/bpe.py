@@ -35,7 +35,8 @@ def train_bpe_optimized(
         num_merges: Number of merge operations to perform
         
     Returns:
-        List of merge operations in order they were learned
+        BPETokenizerParams consisting of learned vocab and list of merge operations
+            in order they were learned
     """
     vocab = vocab_src.copy()
     freq_table = freq_table_src.copy()
@@ -153,7 +154,8 @@ def train_bpe_optimized_debug(
         num_merges: Number of merge operations to perform
         
     Returns:
-        List of merge operations in order they were learned
+        BPETokenizerParams consisting of learned vocab and list of merge operations
+            in order they were learned
     """
     vocab = vocab_src.copy()
     freq_table = freq_table_src.copy()
