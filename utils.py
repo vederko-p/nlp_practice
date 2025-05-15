@@ -2,7 +2,11 @@
 import json
 import yaml
 import datetime
+import time
+from functools import wraps
 
+
+# Read & Write files
 
 def read_json(filepath: str) -> dict:
     with open(filepath, 'r', encoding='utf-8') as json_file:
@@ -34,5 +38,20 @@ def write_lines(filepath: str, lines: list[str]):
         txt_file.writelines(lines_sep)
 
 
+# Time
+
 def time_now() -> list[str]:
     return datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S").split('_')
+
+
+def timer(func):
+    """Decorator that prints the execution time of the decorated function."""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start_time = time.perf_counter()
+        result = func(*args, **kwargs)
+        end_time = time.perf_counter()
+        elapsed_time = end_time - start_time
+        print(f"Function '{func.__name__}' executed in {elapsed_time:.3f} seconds")
+        return result
+    return wrapper
