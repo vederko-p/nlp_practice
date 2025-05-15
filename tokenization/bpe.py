@@ -4,6 +4,7 @@
 from typing import Iterator
 from dataclasses import dataclass
 from collections import defaultdict
+from tqdm.notebook import tqdm
 
 
 @dataclass(frozen=True)
@@ -50,9 +51,12 @@ def train_bpe_optimized(
             pair_counts[pair] += freq
             pair_locations[pair].add(token)
     # Train tokenizer
-    for merge_idx in range(num_merges):
+    for merge_idx in tqdm(range(num_merges), total=num_merges):
         if len(pair_counts) == 0 or len(vocab) >= vocab_size:
             # stop if all possible pairs were merged or met vocab_size threshold
+            msgs = ['All possible pairs were merged', 'Met vocab_size threshold']
+            msg = msgs[0] if len(pair_counts) == 0 else msgs[1]
+            print(msg)
             break
         # TODO: Use heap instead of max
         pair_to_merge = max(pair_counts.items(), key=lambda p_cnt: (p_cnt[1], merge_bytes(p_cnt[0], b"|")))[0]
@@ -240,8 +244,8 @@ def train_bpe_optimized_debug(
                     if len(pair_locations[old_pair]) == 0:
                         del pair_locations[old_pair]
                 else:
-                    pair_locations[pair].add(new_token)
                     pair_locations[pair].remove(old_token)
+                    pair_locations[pair].add(new_token)
            
             print('  pair_counts:')
             _t_pair_cnt = {merge_bytes(pair, b"|"): cnt for pair, cnt in pair_counts.items()}
