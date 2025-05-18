@@ -29,6 +29,8 @@ def train_bpe_optimized(
     vocab_size: int = 10_000,
 ) -> BPETokenizerParams:
     """Optimized BPE training with incremental pair frequency updates.
+
+    This is the implementation for debug purposes.
     
     Args:
         vocab_src: Initial vocabulary
@@ -51,7 +53,7 @@ def train_bpe_optimized(
             pair_counts[pair] += freq
             pair_locations[pair].add(token)
     # Train tokenizer
-    for merge_idx in tqdm(range(num_merges), total=num_merges):
+    for merge_idx in range(num_merges):
         if len(pair_counts) == 0 or len(vocab) >= vocab_size:
             # stop if all possible pairs were merged or met vocab_size threshold
             msgs = ['All possible pairs were merged', 'Met vocab_size threshold']
@@ -67,6 +69,7 @@ def train_bpe_optimized(
         first, second = pair_to_merge
         # Update frequency table and tracking structures
         affected_tokens = pair_locations[pair_to_merge].copy()
+        pairs_to_remove = set()  # Non existing pairs after merge
         for old_token in affected_tokens:
             # Merge and obtain new_token
             new_token = []
@@ -84,23 +87,41 @@ def train_bpe_optimized(
             # Remove old token from frequency table
             del freq_table[old_token]
             # Update pairs_count and pair_locations for new token
+            old_pairs = set()  # Old pairs that don't intersect with merged
             for pair in zip(new_token, new_token[1:]):
-                if pair[0] == merged or pair[1] == merged:
-                    new_pair = (merged, pair[1]) if pair[0] == merged else (pair[0], merged)
-                    old_pair = (second, pair[1]) if pair[0] == merged else (pair[0], first)
+                if pair[0] == merged and pair[1] == merged:
+                    # merged pairs are joint: (re, re)
+                    # rem_pair
+                    rem_pair = (second, first)
+                    pair_counts[rem_pair] -= freq_table[new_token]
+                    if pair_counts[rem_pair] == 0:
+                        pairs_to_remove.add(rem_pair)
+                    # new_pair
+                    new_pair = pair
                     pair_counts[new_pair] += freq_table[new_token]
-                    pair_counts[old_pair] -= freq_table[new_token]
-                    # update old pair counter
-                    if pair_counts[old_pair] == 0:
-                        del pair_counts[old_pair]
                     pair_locations[new_pair].add(new_token)
-                    # update old pair locations
-                    pair_locations[old_pair].remove(old_token)
-                    if len(pair_locations[old_pair]) == 0:
-                        del pair_locations[old_pair]
+                elif pair[0] == merged or pair[1] == merged:
+                    # pairs that intersect with merged: (re, a)
+                    # rem_pair
+                    rem_pair = (second, pair[1]) if pair[0] == merged else (pair[0], first)
+                    pair_counts[rem_pair] -= freq_table[new_token]
+                    if pair_counts[rem_pair] == 0:
+                        pairs_to_remove.add(rem_pair)
+                    # new_pair
+                    new_pair = (merged, pair[1]) if pair[0] == merged else (pair[0], merged)
+                    pair_counts[new_pair] += freq_table[new_token]
+                    pair_locations[new_pair].add(new_token)
                 else:
-                    pair_locations[pair].add(new_token)
-                    pair_locations[pair].remove(old_token)
+                    # old pairs that don't intersect with merged: (a, b)
+                    old_pairs.add(pair)
+            # Update old pairs locations
+            for old_pair in old_pairs:
+                pair_locations[old_pair].remove(old_token)
+                pair_locations[old_pair].add(new_token)
+        # Remove non existing pairs
+        for rem_pair in pairs_to_remove:
+            del pair_counts[rem_pair]
+            del pair_locations[rem_pair]
         del pair_counts[pair_to_merge]
         del pair_locations[pair_to_merge]
     res = BPETokenizerParams(vocab, merges)
@@ -207,6 +228,7 @@ def train_bpe_optimized_debug(
         
         # Update frequency table and tracking structures
         affected_tokens = pair_locations[pair_to_merge].copy()
+        pairs_to_remove = set()  # Non existing pairs after merge
         for old_token in affected_tokens:
             print(f'old_token: {tuple(to_bytes(old_token))}')
             # Merge and obtain new_token
@@ -229,30 +251,43 @@ def train_bpe_optimized_debug(
             del freq_table[old_token]
 
             # Update pairs_count and pair_locations for new token
+            old_pairs = set()  # Old pairs that don't intersect with merged
             for pair in zip(new_token, new_token[1:]):
-                if pair[0] == merged or pair[1] == merged:
-                    new_pair = (merged, pair[1]) if pair[0] == merged else (pair[0], merged)
-                    old_pair = (second, pair[1]) if pair[0] == merged else (pair[0], first)
+                if pair[0] == merged and pair[1] == merged:
+                    # merged pairs are joint: (re, re)
+                    # rem_pair
+                    rem_pair = (second, first)
+                    pair_counts[rem_pair] -= freq_table[new_token]
+                    if pair_counts[rem_pair] == 0:
+                        pairs_to_remove.add(rem_pair)
+                    # new_pair
+                    new_pair = pair
                     pair_counts[new_pair] += freq_table[new_token]
-                    pair_counts[old_pair] -= freq_table[new_token]
-                    # update old pair counter
-                    if pair_counts[old_pair] == 0:
-                        del pair_counts[old_pair]
                     pair_locations[new_pair].add(new_token)
-                    # update old pair locations
-                    pair_locations[old_pair].remove(old_token)
-                    if len(pair_locations[old_pair]) == 0:
-                        del pair_locations[old_pair]
+                elif pair[0] == merged or pair[1] == merged:
+                    # pairs that intersect with merged: (re, a)
+                    # rem_pair
+                    rem_pair = (second, pair[1]) if pair[0] == merged else (pair[0], first)
+                    pair_counts[rem_pair] -= freq_table[new_token]
+                    if pair_counts[rem_pair] == 0:
+                        pairs_to_remove.add(rem_pair)
+                    # new_pair
+                    new_pair = (merged, pair[1]) if pair[0] == merged else (pair[0], merged)
+                    pair_counts[new_pair] += freq_table[new_token]
+                    pair_locations[new_pair].add(new_token)
                 else:
-                    pair_locations[pair].remove(old_token)
-                    pair_locations[pair].add(new_token)
-           
-            print('  pair_counts:')
-            _t_pair_cnt = {merge_bytes(pair, b"|"): cnt for pair, cnt in pair_counts.items()}
-            print(f'  {_t_pair_cnt}')
-            
-            print('-'*50)
-    
+                    # old pairs that don't intersect with merged: (a, b)
+                    old_pairs.add(pair)
+            # Update old pairs locations
+            for old_pair in old_pairs:
+                pair_locations[old_pair].remove(old_token)
+                pair_locations[old_pair].add(new_token)
+
+        # Remove non existing pairs
+        for rem_pair in pairs_to_remove:
+            print(f'    rem_pair: {merge_bytes(rem_pair, b"|")}')
+            del pair_counts[rem_pair]
+            del pair_locations[rem_pair]
         del pair_counts[pair_to_merge]
         del pair_locations[pair_to_merge]
     
