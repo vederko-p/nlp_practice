@@ -4,7 +4,7 @@ This repository is dedicated to NLP tasks research and practice.
 
 # References
 
-1) [Stanford css-336](https://stanford-cs336.github.io/spring2025/)
+1) [Stanford cs-336: Language Modeling from Scratch](https://stanford-cs336.github.io/spring2025/)
 
 How I run tests:
 
