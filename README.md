@@ -2,6 +2,28 @@
 
 This repository is dedicated to NLP tasks research and practice.
 
+# References
+
+1) [Stanford css-336](https://stanford-cs336.github.io/spring2025/)
+
+How I run tests:
+
+Invoke my code into the `stanford-cs336/assignment1-basics/tests/adapters.py` via following:
+
+```Python
+import sys
+
+# I know exactly where I store my implementation files
+# Don't do this if you store them somewhere else
+module_path = os.path.abspath('../../')
+sys.path.append(module_path)
+
+from tokenization.for_tst_2 import hello_2
+hello_2()
+```
+
+Next follow the official course [instruction](https://github.com/stanford-cs336/assignment1-basics/tree/main?tab=readme-ov-file#setup) on how to run tests.
+
 # 1. Used Datasets 
 
 |ID|Name|Task|Source|
