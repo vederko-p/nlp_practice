@@ -67,3 +67,4 @@ def pretokenize_file_parallel(filep: str, pt_args: PreTokenizerArgs) -> dict[tup
         for token_bytes, token_count in chunk_res.items():
             pretoken_res[token_bytes] = pretoken_res.get(token_bytes, 0) + token_count
     return pretoken_res
+
