@@ -4,7 +4,7 @@ This repository is dedicated to NLP tasks research and practice.
 
 # References
 
-1) [Stanford cs-336: Language Modeling from Scratch](https://stanford-cs336.github.io/spring2025/)
+1) [Stanford CS336: Language Modeling from Scratch](https://stanford-cs336.github.io/spring2025/)
 
 How I run tests:
 
@@ -22,7 +22,7 @@ from tokenization.for_tst_2 import hello_2
 hello_2()
 ```
 
-Next follow the official course [instruction](https://github.com/stanford-cs336/assignment1-basics/tree/main?tab=readme-ov-file#setup) on how to run tests.
+Next follow the official course [guide](https://github.com/stanford-cs336/assignment1-basics/tree/main?tab=readme-ov-file#setup) on how to run tests.
 
 # 1. Used Datasets 
 
