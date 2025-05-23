@@ -59,7 +59,7 @@ def pretokenize_file_parallel(filep: str, pt_args: PreTokenizerArgs) -> dict[tup
             chunk = file.read(end - beg).decode("utf-8", errors="ignore")
             args.append((chunk, pt_args.special_tokens, pt_args.pretoken_pat))
     # Process chunks in parallel
-    with Pool(processes=N_PROC) as pool:
+    with Pool(processes=pt_args.n_proc) as pool:
         results = pool.starmap(pretokenize, args)
     # Reduce results
     pretoken_res = {}  # frequency table
