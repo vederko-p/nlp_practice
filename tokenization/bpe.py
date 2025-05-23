@@ -60,7 +60,8 @@ def train_bpe_optimized(
             print(f'\n>>> {msg}')
             break
         # TODO: Could use heap instead of max
-        pair_to_merge = max(pair_counts.items(), key=lambda p_cnt: (p_cnt[1], merge_bytes(p_cnt[0], b"|")))[0]
+        # pair_to_merge = max(pair_counts.items(), key=lambda p_cnt: (p_cnt[1], merge_bytes(p_cnt[0])))[0]
+        pair_to_merge = min(pair_counts.items(), key=lambda p_cnt: (-p_cnt[1], merge_bytes(p_cnt[0])))[0]
         # Update structures
         merges.append(tuple(to_bytes(pair_to_merge)))
         merged = merge_bytes(pair_to_merge)
@@ -195,7 +196,8 @@ def train_bpe_optimized_debug(
         print_debug_structs(freq_table, pair_counts, pair_locations)
         
         # TODO: Could use heap instead of max
-        pair_to_merge = max(pair_counts.items(), key=lambda p_cnt: (p_cnt[1], merge_bytes(p_cnt[0], b"|")))[0]
+        # pair_to_merge = max(pair_counts.items(), key=lambda p_cnt: (p_cnt[1], merge_bytes(p_cnt[0])))[0]
+        pair_to_merge = min(pair_counts.items(), key=lambda p_cnt: (-p_cnt[1], merge_bytes(p_cnt[0])))[0]
 
         print(f'pair_to_merge: {merge_bytes(pair_to_merge, b"|")}')
     
